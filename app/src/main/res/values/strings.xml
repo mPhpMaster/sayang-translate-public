@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sayang Translate</string>
+    <string name="tile_label">Translate</string>
+    <string name="service_description">Shows a small button in every app and places translations over the text on screen.</string>
+</resources>

@@ -1,0 +1,10 @@
+# Holds the SDK path and the path to the signing key.
+local.properties
+
+.gradle/
+.kotlin/
+build/
+app/build/
+*.apk
+.idea/
+*.iml
