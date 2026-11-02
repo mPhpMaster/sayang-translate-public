@@ -2,6 +2,7 @@ package com.sayang.translate
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.NotificationManager
 import android.app.StatusBarManager
 import android.content.ComponentName
@@ -58,51 +59,68 @@ class MainActivity : Activity() {
             setPadding(dp(24), dp(24), dp(24), dp(24))
         }
         val first = prefs.myLanguage
-        if (first == null || editing) renderSetup(page) else renderSettings(page, first)
+        when {
+            !prefs.privacyAccepted -> renderPrivacy(page)
+            first == null || editing -> renderSetup(page)
+            else -> renderSettings(page, first)
+        }
         setContentView(ScrollView(this).apply {
             fitsSystemWindows = true
             addView(page)
         })
     }
 
-    private fun renderSetup(page: LinearLayout) {
-        page.addView(text("Set up Sayang Translate", 28f))
+    private fun renderPrivacy(page: LinearLayout) {
+        page.addView(text(getString(R.string.privacy_title), 28f))
+        page.addView(text(getString(R.string.privacy_body), 16f))
+        page.addView(button(getString(R.string.privacy_accept)) {
+            prefs.privacyAccepted = true
+            render()
+        })
+    }
 
-        page.addView(heading("Your language"))
+    private fun renderSetup(page: LinearLayout) {
+        page.addView(text(getString(R.string.setup_title), 28f))
+
+        page.addView(heading(getString(R.string.my_language)))
         val first = languagePicker(prefs.myLanguage ?: Languages.deviceDefault())
         page.addView(first)
 
-        page.addView(heading("Second language"))
-        page.addView(text("The round button switches between your language, this one, and Off.", 15f))
+        page.addView(heading(getString(R.string.second_language)))
+        page.addView(text(getString(R.string.second_language_hint), 15f))
         val second = languagePicker(prefs.secondLanguage)
         page.addView(second)
 
         val keep = CheckBox(this).apply {
-            text = "Never translate text that's already in my language"
+            text = getString(R.string.keep_my_language)
             isChecked = prefs.keepMyLanguage
         }
         page.addView(keep)
 
-        page.addView(heading("Gemini key"))
-        page.addView(text(
-            "Free from Google. It gives the best translations and understands slang. " +
-                "Without one, translation runs on the phone and is weaker. Your text goes to Google.",
-            15f,
-        ))
-        page.addView(button("Get a free key") {
+        page.addView(heading(getString(R.string.dialect)))
+        val dialect = EditText(this).apply {
+            hint = getString(R.string.dialect_hint)
+            setText(prefs.dialect)
+        }
+        page.addView(dialect)
+
+        page.addView(heading(getString(R.string.gemini_key)))
+        page.addView(text(getString(R.string.gemini_key_about), 15f))
+        page.addView(button(getString(R.string.get_key)) {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://aistudio.google.com/apikey")))
         })
         val key = EditText(this).apply {
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-            hint = "Paste your key"
+            hint = getString(R.string.paste_key)
             setText(prefs.apiKey)
         }
         page.addView(key)
 
-        page.addView(button("Save") {
+        page.addView(button(getString(R.string.save)) {
             prefs.myLanguage = Languages.all[first.selectedItemPosition]
             prefs.secondLanguage = Languages.all[second.selectedItemPosition]
             prefs.keepMyLanguage = keep.isChecked
+            prefs.dialect = dialect.text.toString()
             prefs.apiKey = key.text.toString()
             editing = false
             render()
@@ -114,100 +132,116 @@ class MainActivity : Activity() {
         adapter = ArrayAdapter(
             this@MainActivity,
             android.R.layout.simple_spinner_dropdown_item,
-            Languages.all.map(Languages::label),
+            Languages.all.map { Languages.label(it, Languages.uiLocale(this@MainActivity)) },
         )
         setSelection(Languages.all.indexOf(selected).coerceAtLeast(0))
     }
 
     private fun renderSettings(page: LinearLayout, first: String) {
-        val second = prefs.secondLanguage
-        page.addView(text("Sayang Translate", 28f))
-        page.addView(text(
-            "New messages in WhatsApp and Telegram arrive as a notification in " +
-                "${Languages.label(first)} and ${Languages.label(second)}.",
-            15f,
-        ))
-        if (prefs.apiKey.isBlank()) {
-            page.addView(text("No Gemini key yet, so translation runs on the phone and is weaker.", 15f))
-        }
-        page.addView(button("Change languages or key") {
+        val locale = Languages.uiLocale(this)
+        val firstLabel = Languages.label(first, locale)
+        val secondLabel = Languages.label(prefs.secondLanguage, locale)
+
+        page.addView(text(getString(R.string.app_name), 28f))
+        page.addView(text(getString(R.string.summary, firstLabel, secondLabel), 15f))
+        if (prefs.apiKey.isBlank()) page.addView(text(getString(R.string.no_key), 15f))
+        page.addView(button(getString(R.string.change_settings)) {
             editing = true
             render()
         })
 
         if (needsNotificationPermission()) {
-            page.addView(heading("Step 1: Show translations"))
-            page.addView(button("Allow notifications") {
+            page.addView(heading(getString(R.string.step_notifications)))
+            page.addView(button(getString(R.string.allow_notifications)) {
                 requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 0)
             })
         }
 
-        page.addView(heading(if (hasNotificationAccess()) "Ready" else "Step 2: Read chat notifications"))
+        page.addView(heading(getString(if (hasNotificationAccess()) R.string.ready else R.string.step_access)))
         if (hasNotificationAccess()) {
-            page.addView(text("You're all set. Nothing else is needed.", 15f))
+            page.addView(text(getString(R.string.ready_body), 15f))
         } else {
-            page.addView(text(
-                "Turn on Sayang Translate. If it's greyed out, open App info, tap ⋮ at the top, " +
-                    "choose Allow restricted settings, then try again.",
-                15f,
-            ))
-            page.addView(button("Turn on notification access") {
+            page.addView(text(getString(R.string.access_body), 15f))
+            page.addView(button(getString(R.string.turn_on_access)) {
                 startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
             })
             page.addView(appInfoButton())
         }
 
-        page.addView(heading("Translate anything on screen"))
+        page.addView(heading(getString(R.string.screen_title)))
         if (TranslateService.instance != null) {
-            page.addView(text(
-                "Tap the small round button in any app. Each tap switches between " +
-                    "${Languages.label(first)}, ${Languages.label(second)} and Off. " +
-                    "It goes back to Off when you change apps.",
-                15f,
-            ))
+            page.addView(text(getString(R.string.screen_on, firstLabel, secondLabel), 15f))
         } else {
-            page.addView(text(
-                "Turn on Sayang Translate here, and a small button appears in every app.",
-                15f,
-            ))
-            page.addView(button("Turn on chat button") {
+            page.addView(text(getString(R.string.screen_off), 15f))
+            page.addView(button(getString(R.string.turn_on_button)) {
                 startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             })
         }
 
-        page.addView(heading("Hide the button"))
-        page.addView(text(
-            "Hold the round button to hide it. Tap Translate in the notification panel to show or hide it.",
-            15f,
-        ))
+        page.addView(heading(getString(R.string.apps_title)))
+        page.addView(text(getString(R.string.button_apps_hint), 15f))
+        page.addView(button(getString(R.string.button_apps)) { pickButtonApps() })
+        page.addView(button(getString(R.string.notification_apps)) { pickNotificationApps() })
+
+        page.addView(heading(getString(R.string.hide_title)))
+        page.addView(text(getString(R.string.hide_body), 15f))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            page.addView(button("Add Translate to the panel") { requestTile() })
+            page.addView(button(getString(R.string.add_tile)) { requestTile() })
         } else {
-            page.addView(text("Pull down the panel, tap the pencil icon, and drag Translate up.", 15f))
+            page.addView(text(getString(R.string.add_tile_manually), 15f))
         }
 
-        page.addView(heading("Updates"))
-        val status = text("Version ${BuildConfig.VERSION_NAME}. New versions install by themselves.", 15f)
+        page.addView(heading(getString(R.string.updates_title)))
+        val status = text(getString(R.string.version, BuildConfig.VERSION_NAME), 15f)
         page.addView(status)
         if (!packageManager.canRequestPackageInstalls()) {
-            page.addView(button("Allow updates") {
+            page.addView(button(getString(R.string.allow_updates)) {
                 startActivity(
                     Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:$packageName")),
                 )
             })
         }
-        page.addView(button("Check for updates") {
-            status.text = "Checking and downloading. This can take a minute…"
+        page.addView(button(getString(R.string.check_updates)) {
+            status.text = getString(R.string.checking)
             scope.launch {
                 status.text = try {
                     Updater.checkAndInstall(this@MainActivity)
                 } catch (e: IOException) {
-                    "Couldn't check. Check your internet."
+                    getString(R.string.check_failed)
                 } catch (e: org.json.JSONException) {
-                    "Couldn't read the update information."
+                    getString(R.string.check_unreadable)
                 }
             }
         })
+    }
+
+    private fun pickButtonApps() {
+        val apps = AppLists.installed(this)
+        val checked = apps.map { !prefs.isButtonBlocked(it.packageName, it.label) }.toBooleanArray()
+        showAppPicker(R.string.button_apps, apps, checked) {
+            apps.forEachIndexed { i, app -> prefs.setButtonAllowed(app.packageName, app.label, checked[i]) }
+        }
+    }
+
+    private fun pickNotificationApps() {
+        val apps = AppLists.installed(this)
+        val chosen = prefs.notificationApps
+        val checked = apps.map { it.packageName in chosen }.toBooleanArray()
+        showAppPicker(R.string.notification_apps, apps, checked) {
+            // Apps missing from the list (not installed now) keep their earlier choice.
+            val listed = apps.map { it.packageName }.toSet()
+            prefs.notificationApps = (chosen - listed) +
+                apps.filterIndexed { i, _ -> checked[i] }.map { it.packageName }
+        }
+    }
+
+    private fun showAppPicker(title: Int, apps: List<InstalledApp>, checked: BooleanArray, onSave: () -> Unit) {
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMultiChoiceItems(apps.map { it.label }.toTypedArray(), checked) { _, i, on -> checked[i] = on }
+            .setPositiveButton(R.string.save) { _, _ -> onSave() }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun requestTile() {
@@ -226,7 +260,7 @@ class MainActivity : Activity() {
     private fun hasNotificationAccess() = getSystemService(NotificationManager::class.java)
         .isNotificationListenerAccessGranted(ComponentName(this, ChatListener::class.java))
 
-    private fun appInfoButton() = button("Open App info") {
+    private fun appInfoButton() = button(getString(R.string.open_app_info)) {
         startActivity(
             Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).setData(Uri.parse("package:$packageName")),
         )
@@ -237,9 +271,9 @@ class MainActivity : Activity() {
             try {
                 OfflineTranslator.downloadPacks(first, second)
             } catch (e: IOException) {
-                Toast.makeText(this@MainActivity, DOWNLOAD_FAILED, Toast.LENGTH_LONG).show()
+                Toast.makeText(this@MainActivity, R.string.download_failed, Toast.LENGTH_LONG).show()
             } catch (e: com.google.mlkit.common.MlKitException) {
-                Toast.makeText(this@MainActivity, DOWNLOAD_FAILED, Toast.LENGTH_LONG).show()
+                Toast.makeText(this@MainActivity, R.string.download_failed, Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -259,8 +293,4 @@ class MainActivity : Activity() {
     }
 
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
-
-    private companion object {
-        const val DOWNLOAD_FAILED = "Language pack download failed. Check your internet."
-    }
 }

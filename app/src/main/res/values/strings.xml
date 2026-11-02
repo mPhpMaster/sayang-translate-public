@@ -2,5 +2,75 @@
 <resources>
     <string name="app_name">Sayang Translate</string>
     <string name="tile_label">Translate</string>
-    <string name="service_description">Shows a small button in every app and places translations over the text on screen.</string>
+    <string name="service_description">Shows a small button in your apps and places translations over the text on screen.</string>
+
+    <string name="privacy_title">Before you start</string>
+    <string name="privacy_body">Sayang Translate sends the text you translate to Google\'s Gemini, using your own key. Google\'s terms for that key apply.\n\nText already in your languages is checked on the phone and never sent.\n\nIt only reads notifications from the apps you choose, and the round button only reads the screen while it\'s switched on. It switches back off when you change apps.\n\nThe app has no server and collects nothing.</string>
+    <string name="privacy_accept">I understand</string>
+
+    <string name="setup_title">Set up Sayang Translate</string>
+    <string name="my_language">Your language</string>
+    <string name="second_language">Second language</string>
+    <string name="second_language_hint">The round button switches between your language, this one, and Off.</string>
+    <string name="keep_my_language">Never translate text that\'s already in my language</string>
+    <string name="dialect">Dialect (optional)</string>
+    <string name="dialect_hint">For example: Gulf, Egyptian, Javanese</string>
+    <string name="gemini_key">Gemini key</string>
+    <string name="gemini_key_about">Free from Google. It gives the best translations and understands slang. Without one, translation runs on the phone and is weaker.</string>
+    <string name="get_key">Get a free key</string>
+    <string name="paste_key">Paste your key</string>
+    <string name="save">Save</string>
+
+    <string name="summary">New messages arrive as a notification in %1$s and %2$s.</string>
+    <string name="no_key">No Gemini key yet, so translation runs on the phone and is weaker.</string>
+    <string name="change_settings">Change languages or key</string>
+
+    <string name="step_notifications">Step 1: Show translations</string>
+    <string name="allow_notifications">Allow notifications</string>
+    <string name="step_access">Step 2: Read chat notifications</string>
+    <string name="ready">Ready</string>
+    <string name="ready_body">You\'re all set. Nothing else is needed.</string>
+    <string name="access_body">Turn on Sayang Translate. If it\'s greyed out, open App info, tap ⋮ at the top, choose Allow restricted settings, then try again.</string>
+    <string name="turn_on_access">Turn on notification access</string>
+    <string name="open_app_info">Open App info</string>
+
+    <string name="screen_title">Translate anything on screen</string>
+    <string name="screen_on">Tap the small round button in an app. Each tap switches between %1$s, %2$s and Off. It goes back to Off when you change apps.</string>
+    <string name="screen_off">Turn on Sayang Translate here, and a small round button appears in your apps.</string>
+    <string name="turn_on_button">Turn on the round button</string>
+
+    <string name="apps_title">Apps</string>
+    <string name="button_apps">Apps with the round button</string>
+    <string name="button_apps_hint">Banking, payment and password apps are left out unless you tick them.</string>
+    <string name="notification_apps">Apps whose notifications get translated</string>
+
+    <string name="hide_title">Hide the button</string>
+    <string name="hide_body">Hold the round button to hide it. Tap Translate in the notification panel to show or hide it.</string>
+    <string name="add_tile">Add Translate to the panel</string>
+    <string name="add_tile_manually">Pull down the panel, tap the pencil icon, and drag Translate up.</string>
+
+    <string name="updates_title">Updates</string>
+    <string name="version">Version %1$s. New versions install by themselves.</string>
+    <string name="allow_updates">Allow updates</string>
+    <string name="check_updates">Check for updates</string>
+    <string name="checking">Checking and downloading. This can take a minute…</string>
+    <string name="check_failed">Couldn\'t check. Check your internet.</string>
+    <string name="check_unreadable">Couldn\'t read the update information.</string>
+    <string name="no_release">No release found.</string>
+    <string name="up_to_date">You have the latest version.</string>
+    <string name="allow_first">Allow updates first, then check again.</string>
+    <string name="installing">Installing version %1$s…</string>
+    <string name="allow_updates_body">Version %1$s is ready. Tap to allow Sayang Translate to install updates.</string>
+    <string name="update_ready">Update ready</string>
+    <string name="update_ready_body">Tap to install the new version.</string>
+    <string name="update_failed">Update failed</string>
+    <string name="try_later">Try again later.</string>
+    <string name="button_off_title">Turn the round button back on</string>
+    <string name="button_off_body">The update switched off the round translate button. Tap to turn it on again.</string>
+
+    <string name="channel_updates">Updates</string>
+    <string name="channel_translations">Translations</string>
+    <string name="offline_translation">Offline translation</string>
+    <string name="mode_off">Off</string>
+    <string name="download_failed">Language pack download failed. Check your internet.</string>
 </resources>

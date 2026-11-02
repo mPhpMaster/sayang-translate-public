@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sayang Translate</string>
+    <string name="tile_label">ترجمة</string>
+    <string name="service_description">يعرض زرًا صغيرًا في تطبيقاتك ويضع الترجمة فوق النص الظاهر على الشاشة.</string>
+
+    <string name="privacy_title">قبل ما تبدأ</string>
+    <string name="privacy_body">يرسل Sayang Translate النص اللي تترجمه إلى Gemini من Google باستخدام مفتاحك. تنطبق عليه شروط Google الخاصة بهذا المفتاح.\n\nالنص المكتوب أصلًا بلغاتك يُفحص على الجوال ولا يُرسل أبدًا.\n\nيقرأ الإشعارات من التطبيقات اللي تختارها فقط، والزر الدائري يقرأ الشاشة فقط وهو شغّال، ويطفي نفسه لما تنتقل لتطبيق ثاني.\n\nالتطبيق ما له خادم ولا يجمع أي بيانات.</string>
+    <string name="privacy_accept">فهمت</string>
+
+    <string name="setup_title">إعداد Sayang Translate</string>
+    <string name="my_language">لغتك</string>
+    <string name="second_language">اللغة الثانية</string>
+    <string name="second_language_hint">الزر الدائري يبدّل بين لغتك وهذي اللغة والإيقاف.</string>
+    <string name="keep_my_language">لا تترجم أبدًا النص المكتوب بلغتي</string>
+    <string name="dialect">اللهجة (اختياري)</string>
+    <string name="dialect_hint">مثلًا: خليجية، مصرية، شامية</string>
+    <string name="gemini_key">مفتاح Gemini</string>
+    <string name="gemini_key_about">مجاني من Google، ويعطي أفضل ترجمة ويفهم الكلام العامي. بدونه تكون الترجمة على الجوال وأضعف.</string>
+    <string name="get_key">احصل على مفتاح مجاني</string>
+    <string name="paste_key">الصق مفتاحك</string>
+    <string name="save">حفظ</string>
+
+    <string name="summary">الرسائل الجديدة توصلك في إشعار بـ%1$s و%2$s.</string>
+    <string name="no_key">ما فيه مفتاح Gemini للحين، فالترجمة على الجوال وأضعف.</string>
+    <string name="change_settings">تغيير اللغات أو المفتاح</string>
+
+    <string name="step_notifications">الخطوة 1: إظهار الترجمات</string>
+    <string name="allow_notifications">السماح بالإشعارات</string>
+    <string name="step_access">الخطوة 2: قراءة إشعارات المحادثات</string>
+    <string name="ready">جاهز</string>
+    <string name="ready_body">كل شي جاهز، ما تحتاج شي ثاني.</string>
+    <string name="access_body">فعّل Sayang Translate. إذا كان الخيار رمادي، افتح معلومات التطبيق، اضغط ⋮ فوق، واختر Allow restricted settings، وبعدها جرّب مرة ثانية.</string>
+    <string name="turn_on_access">تفعيل الوصول للإشعارات</string>
+    <string name="open_app_info">فتح معلومات التطبيق</string>
+
+    <string name="screen_title">ترجمة أي شي على الشاشة</string>
+    <string name="screen_on">اضغط الزر الدائري الصغير داخل أي تطبيق. كل ضغطة تبدّل بين %1$s و%2$s والإيقاف، ويرجع للإيقاف لما تنتقل لتطبيق ثاني.</string>
+    <string name="screen_off">فعّل Sayang Translate من هنا، ويظهر زر دائري صغير في تطبيقاتك.</string>
+    <string name="turn_on_button">تفعيل الزر الدائري</string>
+
+    <string name="apps_title">التطبيقات</string>
+    <string name="button_apps">التطبيقات اللي يظهر فيها الزر</string>
+    <string name="button_apps_hint">تطبيقات البنوك والدفع وكلمات المرور مستثناة إلا إذا اخترتها.</string>
+    <string name="notification_apps">التطبيقات اللي تترجم إشعاراتها</string>
+
+    <string name="hide_title">إخفاء الزر</string>
+    <string name="hide_body">اضغط مطولًا على الزر الدائري لإخفائه، واضغط «ترجمة» في لوحة الإشعارات لإظهاره أو إخفائه.</string>
+    <string name="add_tile">إضافة «ترجمة» للوحة الإشعارات</string>
+    <string name="add_tile_manually">انزل لوحة الإشعارات، اضغط أيقونة القلم، واسحب «ترجمة» للأعلى.</string>
+
+    <string name="updates_title">التحديثات</string>
+    <string name="version">الإصدار %1$s. الإصدارات الجديدة تتثبت لحالها.</string>
+    <string name="allow_updates">السماح بالتحديثات</string>
+    <string name="check_updates">البحث عن تحديث</string>
+    <string name="checking">يبحث ويحمّل التحديث، وقد ياخذ دقيقة…</string>
+    <string name="check_failed">ما قدر يبحث، تأكد من الإنترنت.</string>
+    <string name="check_unreadable">ما قدر يقرأ معلومات التحديث.</string>
+    <string name="no_release">ما فيه إصدارات.</string>
+    <string name="up_to_date">عندك أحدث إصدار.</string>
+    <string name="allow_first">اسمح بالتحديثات أولًا، وبعدها ابحث مرة ثانية.</string>
+    <string name="installing">يثبّت الإصدار %1$s…</string>
+    <string name="allow_updates_body">الإصدار %1$s جاهز. اضغط للسماح لـSayang Translate بتثبيت التحديثات.</string>
+    <string name="update_ready">التحديث جاهز</string>
+    <string name="update_ready_body">اضغط لتثبيت الإصدار الجديد.</string>
+    <string name="update_failed">فشل التحديث</string>
+    <string name="try_later">جرّب مرة ثانية بعدين.</string>
+    <string name="button_off_title">رجّع تشغيل الزر الدائري</string>
+    <string name="button_off_body">التحديث طفّى زر الترجمة الدائري. اضغط لتشغيله من جديد.</string>
+
+    <string name="channel_updates">التحديثات</string>
+    <string name="channel_translations">الترجمات</string>
+    <string name="offline_translation">ترجمة بدون إنترنت</string>
+    <string name="mode_off">إيقاف</string>
+    <string name="download_failed">فشل تحميل حزمة اللغة، تأكد من الإنترنت.</string>
+</resources>

@@ -8,7 +8,11 @@ import java.util.Locale
 object Languages {
     val all: List<String> by lazy { TranslateLanguage.getAllLanguages().sortedBy(::label) }
 
-    fun label(code: String): String = Locale.forLanguageTag(code).getDisplayLanguage(Locale.ENGLISH)
+    /** English names go to Gemini; the screens pass the app's own locale. */
+    fun label(code: String, locale: Locale = Locale.ENGLISH): String =
+        Locale.forLanguageTag(code).getDisplayLanguage(locale).replaceFirstChar { it.titlecase(locale) }
+
+    fun uiLocale(context: Context): Locale = context.resources.configuration.locales[0]
 
     // The language detector often reports Indonesian as Malay.
     fun normalize(code: String): String = if (code == "ms") "id" else code
@@ -43,6 +47,44 @@ class Prefs(context: Context) {
         get() = store.getString("api_key", "").orEmpty()
         set(value) = store.edit().putString("api_key", value.trim()).apply()
 
+    var privacyAccepted: Boolean
+        get() = store.getBoolean("privacy_accepted", false)
+        set(value) = store.edit().putBoolean("privacy_accepted", value).apply()
+
+    /** Free text such as "Gulf" or "Egyptian", applied when translating into [myLanguage]. */
+    var dialect: String
+        get() = store.getString("dialect", "").orEmpty()
+        set(value) = store.edit().putString("dialect", value.trim()).apply()
+
+    var notificationApps: Set<String>
+        get() = store.getStringSet("notification_apps", null)?.toSet() ?: AppLists.DEFAULT_NOTIFICATION_APPS
+        set(value) = store.edit().putStringSet("notification_apps", value).apply()
+
+    // Only choices that differ from the default are stored, so new money apps stay blocked.
+    private var buttonBlocked: Set<String>
+        get() = store.getStringSet("button_blocked", emptySet())!!.toSet()
+        set(value) = store.edit().putStringSet("button_blocked", value).apply()
+
+    private var buttonAllowed: Set<String>
+        get() = store.getStringSet("button_allowed", emptySet())!!.toSet()
+        set(value) = store.edit().putStringSet("button_allowed", value).apply()
+
+    fun isButtonBlocked(packageName: String, label: String): Boolean =
+        packageName in buttonBlocked ||
+            (AppLists.looksSensitive(packageName, label) && packageName !in buttonAllowed)
+
+    fun setButtonAllowed(packageName: String, label: String, allowed: Boolean) {
+        val sensitive = AppLists.looksSensitive(packageName, label)
+        buttonAllowed = if (allowed && sensitive) buttonAllowed + packageName else buttonAllowed - packageName
+        buttonBlocked = if (!allowed && !sensitive) buttonBlocked + packageName else buttonBlocked - packageName
+    }
+
+    /** How Gemini should name the language it writes in, e.g. "Arabic (Gulf dialect)". */
+    fun targetName(target: String): String {
+        val name = Languages.label(target)
+        return if (target == myLanguage && dialect.isNotBlank()) "$name ($dialect dialect)" else name
+    }
+
     var buttonHidden: Boolean
         get() = store.getBoolean("button_hidden", false)
         set(value) = store.edit().putBoolean("button_hidden", value).apply()
@@ -60,6 +102,8 @@ class Prefs(context: Context) {
     private fun migrateFromPersonalVersion() {
         val person = store.getString("person", null) ?: return
         store.edit()
+            .putBoolean("privacy_accepted", true)
+            .putString("dialect", if (person == "LAYLA") "" else "Gulf")
             .putString("my_language", if (person == "LAYLA") "id" else "ar")
             .putString("second_language", "en")
             .putBoolean("keep_my_language", person != "LAYLA")

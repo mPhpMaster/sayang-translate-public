@@ -30,6 +30,7 @@ class TranslateService : AccessibilityService() {
 
     /** The app the button is showing over. */
     private var currentApp: String? = null
+    private val labels = HashMap<String, String>()
     private val launchers by lazy {
         packageManager.queryIntentActivities(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0)
             .map { it.activityInfo.packageName }
@@ -117,7 +118,7 @@ class TranslateService : AccessibilityService() {
             when {
                 busy -> "…"
                 failed -> "!"
-                else -> target?.uppercase() ?: "Off"
+                else -> target?.uppercase() ?: getString(R.string.mode_off)
             },
         )
     }
@@ -131,6 +132,7 @@ class TranslateService : AccessibilityService() {
                 pkg == SYSTEM_UI -> Unit
                 Prefs(this@TranslateService).buttonHidden -> leaveApp()
                 pkg == packageName || pkg in launchers -> leaveApp()
+                isBlocked(pkg) -> leaveApp()
                 else -> {
                     // A new app starts at Off, so nothing on screen leaves the phone until asked.
                     if (pkg != currentApp) {
@@ -143,6 +145,9 @@ class TranslateService : AccessibilityService() {
             }
         }
     }
+
+    private fun isBlocked(pkg: String) =
+        Prefs(this).isButtonBlocked(pkg, labels.getOrPut(pkg) { AppLists.label(this, pkg) })
 
     private fun leaveApp() {
         currentApp = null

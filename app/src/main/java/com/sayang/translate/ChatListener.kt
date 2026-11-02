@@ -25,7 +25,7 @@ class ChatListener : NotificationListenerService() {
     override fun onListenerConnected() {
         connectedAt = System.currentTimeMillis()
         getSystemService(NotificationManager::class.java).createNotificationChannel(
-            NotificationChannel(CHANNEL, "Translations", NotificationManager.IMPORTANCE_HIGH),
+            NotificationChannel(CHANNEL, getString(R.string.channel_translations), NotificationManager.IMPORTANCE_HIGH),
         )
     }
 
@@ -35,10 +35,10 @@ class ChatListener : NotificationListenerService() {
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        if (!ChatApps.isWatched(sbn.packageName)) return
+        val prefs = Prefs(this)
+        if (!ChatApps.isWatched(sbn.packageName, prefs.notificationApps)) return
         val notification = sbn.notification
         if (notification.flags and SKIPPED_FLAGS != 0) return
-        val prefs = Prefs(this)
         val first = prefs.myLanguage ?: return
         val second = prefs.secondLanguage
         val skip = prefs.notificationSkips()
@@ -102,7 +102,7 @@ class ChatListener : NotificationListenerService() {
             .setStyle(Notification.BigTextStyle().bigText(body))
             .setContentIntent(sbn.notification.contentIntent)
             .setAutoCancel(true)
-        if (native.offline) builder.setSubText("Offline translation")
+        if (native.offline) builder.setSubText(getString(R.string.offline_translation))
         getSystemService(NotificationManager::class.java).notify(message.hashCode(), builder.build())
         removeOriginal(sbn)
     }
@@ -123,15 +123,9 @@ class ChatListener : NotificationListenerService() {
 }
 
 object ChatApps {
-    // An allowlist keeps bank texts and login codes away from Google.
-    private val WATCHED = setOf(
-        "com.whatsapp",
-        "com.whatsapp.w4b",
-        "org.telegram.messenger",
-        "org.telegram.messenger.web",
-    )
-    private val DEBUG_ONLY = setOf("com.android.shell")
+    // A chosen list keeps bank texts and login codes away from Google.
+    private const val DEBUG_ONLY = "com.android.shell"
 
-    fun isWatched(packageName: String) =
-        packageName in WATCHED || (BuildConfig.DEBUG && packageName in DEBUG_ONLY)
+    fun isWatched(packageName: String, chosen: Set<String>) =
+        packageName in chosen || (BuildConfig.DEBUG && packageName == DEBUG_ONLY)
 }

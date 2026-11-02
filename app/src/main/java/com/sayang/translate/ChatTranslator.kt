@@ -13,11 +13,12 @@ object ChatTranslator {
 
     /** Gemini first, then the offline packs. Null means neither could run. */
     suspend fun translate(context: Context, lines: List<String>, skip: Set<String>, target: String): Outcome? {
-        val apiKey = Prefs(context).apiKey
+        val prefs = Prefs(context)
+        val apiKey = prefs.apiKey
         if (apiKey.isNotBlank()) {
             try {
                 val hints = Dictionary.hintsFor(context, lines)
-                return Outcome(GeminiClient(apiKey).translateLines(lines, skip, target, hints), offline = false)
+                return Outcome(GeminiClient(apiKey).translateLines(lines, skip, prefs.targetName(target), hints), offline = false)
             } catch (_: IOException) {
                 // No internet or daily limit reached: the offline packs take over.
             } catch (_: JSONException) {

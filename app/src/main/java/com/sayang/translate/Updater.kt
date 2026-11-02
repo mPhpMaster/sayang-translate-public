@@ -44,19 +44,19 @@ object Updater {
 
     /** Returns a short status line for the settings screen. */
     suspend fun checkAndInstall(context: Context): String {
-        val release = latest() ?: return "No release found."
-        if (!isNewer(release.version, BuildConfig.VERSION_NAME)) return "You have the latest version."
+        val release = latest() ?: return context.getString(R.string.no_release)
+        if (!isNewer(release.version, BuildConfig.VERSION_NAME)) return context.getString(R.string.up_to_date)
         if (!context.packageManager.canRequestPackageInstalls()) {
             notify(
                 context,
-                "Allow updates",
-                "Version ${release.version} is ready. Tap to allow Sayang Translate to install updates.",
+                context.getString(R.string.allow_updates),
+                context.getString(R.string.allow_updates_body, release.version),
                 Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:${context.packageName}")),
             )
-            return "Allow updates first, then check again."
+            return context.getString(R.string.allow_first)
         }
         install(context, download(context, release))
-        return "Installing version ${release.version}…"
+        return context.getString(R.string.installing, release.version)
     }
 
     fun isNewer(remote: String, local: String): Boolean {
@@ -135,7 +135,7 @@ object Updater {
     fun notify(context: Context, title: String, text: String, open: Intent?) {
         val manager = context.getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(
-            NotificationChannel(CHANNEL, "Updates", NotificationManager.IMPORTANCE_HIGH),
+            NotificationChannel(CHANNEL, context.getString(R.string.channel_updates), NotificationManager.IMPORTANCE_HIGH),
         )
         val builder = Notification.Builder(context, CHANNEL)
             .setSmallIcon(R.drawable.ic_tile)
@@ -164,13 +164,18 @@ class UpdateReceiver : BroadcastReceiver() {
             PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                 @Suppress("DEPRECATION")
                 val confirm = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT) ?: return
-                Updater.notify(context, "Update ready", "Tap to install the new version.", confirm)
+                Updater.notify(
+                    context,
+                    context.getString(R.string.update_ready),
+                    context.getString(R.string.update_ready_body),
+                    confirm,
+                )
             }
             PackageInstaller.STATUS_SUCCESS -> Unit
             else -> Updater.notify(
                 context,
-                "Update failed",
-                intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE) ?: "Try again later.",
+                context.getString(R.string.update_failed),
+                intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE) ?: context.getString(R.string.try_later),
                 null,
             )
         }
@@ -188,8 +193,8 @@ class UpdatedReceiver : BroadcastReceiver() {
         if (!enabled) {
             Updater.notify(
                 context,
-                "Turn the chat button back on",
-                "The update switched off the round translate button. Tap to turn it on again.",
+                context.getString(R.string.button_off_title),
+                context.getString(R.string.button_off_body),
                 Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS),
             )
         }

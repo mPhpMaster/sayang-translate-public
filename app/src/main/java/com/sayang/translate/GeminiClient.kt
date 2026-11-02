@@ -15,7 +15,7 @@ class GeminiClient(private val apiKey: String) {
     suspend fun translateLines(
         lines: List<String>,
         skip: Set<String>,
-        target: String,
+        targetName: String,
         hints: Map<String, String> = emptyMap(),
     ): List<Translation> {
         val parts = JSONArray().put(JSONObject().put("text", JSONArray(lines).toString()))
@@ -23,13 +23,13 @@ class GeminiClient(private val apiKey: String) {
             val glossary = hints.entries.joinToString("\n") { (word, meaning) -> "$word = $meaning" }
             parts.put(JSONObject().put("text", "Slang dictionary for these messages:\n$glossary"))
         }
-        return generate(parts, skip, target).mapNotNull { (index, translated) ->
+        return generate(parts, skip, targetName).mapNotNull { (index, translated) ->
             lines.getOrNull(index)?.let { Translation(it, translated) }
         }
     }
 
-    private suspend fun generate(parts: JSONArray, skip: Set<String>, target: String) = withContext(Dispatchers.IO) {
-        val body = requestBody(parts, skip, target).toString()
+    private suspend fun generate(parts: JSONArray, skip: Set<String>, targetName: String) = withContext(Dispatchers.IO) {
+        val body = requestBody(parts, skip, targetName).toString()
         val connection = URL(ENDPOINT).openConnection() as HttpURLConnection
         try {
             connection.requestMethod = "POST"
@@ -53,10 +53,10 @@ class GeminiClient(private val apiKey: String) {
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent"
         private const val TIMEOUT_MS = 30_000
 
-        fun prompt(skip: Set<String>, target: String) = """
+        fun prompt(skip: Set<String>, targetName: String) = """
             You translate text from a phone screen, mostly private chats.
             The first input is a JSON array of text from any app on the screen.
-            Translate every message into natural, casual ${Languages.label(target)}, keeping the warmth.
+            Translate every message into natural, casual $targetName, keeping the warmth.
             Leave out messages already written in ${skip.joinToString(" or ") { Languages.label(it) }}.
             Malay-looking text counts as Indonesian.
             Keep emojis that are already there, and never add new emojis or extra words.
@@ -71,7 +71,7 @@ class GeminiClient(private val apiKey: String) {
             For each message, return its position in the array as index, starting at 0.
         """.trimIndent()
 
-        private fun requestBody(parts: JSONArray, skip: Set<String>, target: String): JSONObject {
+        private fun requestBody(parts: JSONArray, skip: Set<String>, targetName: String): JSONObject {
             val properties = JSONObject()
                 .put("index", JSONObject().put("type", "INTEGER"))
                 .put("translated", JSONObject().put("type", "STRING"))
@@ -81,7 +81,7 @@ class GeminiClient(private val apiKey: String) {
                 .put("required", JSONArray().put("index").put("translated"))
             val schema = JSONObject().put("type", "ARRAY").put("items", item)
             return JSONObject()
-                .put("system_instruction", JSONObject().put("parts", JSONArray().put(JSONObject().put("text", prompt(skip, target)))))
+                .put("system_instruction", JSONObject().put("parts", JSONArray().put(JSONObject().put("text", prompt(skip, targetName)))))
                 .put("contents", JSONArray().put(JSONObject().put("role", "user").put("parts", parts)))
                 .put(
                     "generationConfig",
