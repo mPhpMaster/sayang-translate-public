@@ -58,6 +58,10 @@
     <string name="check_unreadable">ما قدر يقرأ معلومات التحديث.</string>
     <string name="no_release">ما فيه إصدارات.</string>
     <string name="up_to_date">عندك أحدث إصدار.</string>
+
+    <string name="support_title">ادعم التطبيق</string>
+    <string name="support_body">التطبيق مجاني ومفتوح المصدر. إذا أفادك تقدر تدعم المطوّر بقهوة.</string>
+    <string name="donate">تبرّع عبر PayPal</string>
     <string name="allow_first">اسمح بالتحديثات أولًا، وبعدها ابحث مرة ثانية.</string>
     <string name="installing">يثبّت الإصدار %1$s…</string>
     <string name="allow_updates_body">الإصدار %1$s جاهز. اضغط للسماح لـSayang Translate بتثبيت التحديثات.</string>

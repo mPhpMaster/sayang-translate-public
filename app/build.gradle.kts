@@ -19,8 +19,8 @@ android {
         applicationId = "com.sayang.translate"
         minSdk = 30
         targetSdk = 36
-        versionCode = 14
-        versionName = "10.2"
+        versionCode = 15
+        versionName = "10.3"
     }
 
     buildFeatures {

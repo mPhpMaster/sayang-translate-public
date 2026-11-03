@@ -58,6 +58,10 @@
     <string name="check_unreadable">Couldn\'t read the update information.</string>
     <string name="no_release">No release found.</string>
     <string name="up_to_date">You have the latest version.</string>
+
+    <string name="support_title">Support the app</string>
+    <string name="support_body">The app is free and open source. If it helps you, you can buy the developer a coffee.</string>
+    <string name="donate">Donate with PayPal</string>
     <string name="allow_first">Allow updates first, then check again.</string>
     <string name="installing">Installing version %1$s…</string>
     <string name="allow_updates_body">Version %1$s is ready. Tap to allow Sayang Translate to install updates.</string>

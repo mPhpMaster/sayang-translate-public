@@ -38,6 +38,10 @@ signing.file=/path/to/signing.properties
 
 Then run `./gradlew assembleRelease`. `release.sh` builds and publishes a GitHub release.
 
+## Support
+
+The app is free. If it helps you, you can [donate with PayPal](https://paypal.me/mfsafadi).
+
 ## License
 
 Apache License 2.0. See [LICENSE](LICENSE).

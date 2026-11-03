@@ -28,6 +28,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.io.IOException
 
+private const val DONATE_URL = "https://paypal.me/mfsafadi"
+
 class MainActivity : Activity() {
 
     private val scope = MainScope()
@@ -212,6 +214,12 @@ class MainActivity : Activity() {
                     getString(R.string.check_unreadable)
                 }
             }
+        })
+
+        page.addView(heading(getString(R.string.support_title)))
+        page.addView(text(getString(R.string.support_body), 15f))
+        page.addView(button(getString(R.string.donate)) {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(DONATE_URL)))
         })
     }
 
