@@ -215,6 +215,14 @@ class TranslateService : AccessibilityService() {
         failed = outcome == null
         if (outcome != null) {
             outcome.items.forEach { cache[lang to it.original] = it.translated }
+            // Gemini sometimes leaves out a message in a long list; ask again for the ones that clearly need it.
+            val dropped = batch.filter {
+                (lang to it) !in cache && OfflineTranslator.surelyNeedsTranslation(it, skip)
+            }
+            if (!outcome.offline && dropped.isNotEmpty()) {
+                ChatTranslator.translate(this, dropped, skip, lang)
+                    ?.items?.forEach { cache[lang to it.original] = it.translated }
+            }
             skipped += batch.filter { (lang to it) !in cache }.map { lang to it }
         }
         if (cache.size > MAX_CACHE) cache.clear()

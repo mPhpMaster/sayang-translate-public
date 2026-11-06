@@ -20,8 +20,9 @@ object ScreenReader {
         if (depth > MAX_DEPTH || !node.isVisibleToUser || node.isPassword) return
         if (!node.isEditable) {
             val text = node.text?.toString().orEmpty().ifBlank {
-                // Telegram draws its bubbles itself and only describes them.
-                if (node.childCount == 0) node.contentDescription?.toString().orEmpty() else ""
+                // Telegram draws its bubbles itself and only describes them. Elsewhere descriptions
+                // belong to icons such as ticks, Voice call or Camera, which aren't messages.
+                if (node.childCount == 0 && describesMessages(node)) node.contentDescription?.toString().orEmpty() else ""
             }
             if (text.isNotBlank()) found += ScreenText(text.trim(), Rect().also(node::getBoundsInScreen))
         }
@@ -29,6 +30,13 @@ object ScreenReader {
             node.getChild(i)?.let { walk(it, found, depth + 1) }
         }
     }
+
+    private fun describesMessages(node: AccessibilityNodeInfo): Boolean {
+        val pkg = node.packageName?.toString().orEmpty()
+        return TELEGRAM_APPS.any(pkg::startsWith)
+    }
+
+    private val TELEGRAM_APPS = listOf("org.telegram.", "org.thunderdog.challegram")
 
     fun isMessage(line: String) = line.count(Char::isLetter) >= 2 && !TIME.matches(line)
 

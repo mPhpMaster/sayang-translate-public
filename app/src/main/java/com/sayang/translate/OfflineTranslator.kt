@@ -50,6 +50,12 @@ object OfflineTranslator {
         return code == UNDETERMINED || code !in skip
     }
 
+    /** Stricter: the detector is sure the line is in a language outside [skip]. */
+    suspend fun surelyNeedsTranslation(line: String, skip: Set<String>): Boolean {
+        val code = Languages.normalize(detect(line))
+        return code != UNDETERMINED && code !in skip
+    }
+
     private fun translator(source: String, target: String): Translator = MlKitTranslation.getClient(
         TranslatorOptions.Builder().setSourceLanguage(source).setTargetLanguage(target).build(),
     )

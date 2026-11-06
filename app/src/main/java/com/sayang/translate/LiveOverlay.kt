@@ -6,6 +6,8 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
+import android.text.TextPaint
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -98,7 +100,10 @@ class LiveOverlay(
             }
         }
         root.removeAllViews()
-        items.forEach { (bounds, text) -> root.addView(label(text, bounds), position(bounds)) }
+        // A message scrolled almost out of sight would only leave a thin strip.
+        items.filter { (bounds, _) -> bounds.height() >= dp(MIN_HEIGHT_DP) }.forEachIndexed { index, (bounds, text) ->
+            root.addView(label(text, index), position(bounds, labelWidth(text, bounds)))
+        }
     }
 
     fun clearLabels() {
@@ -106,27 +111,38 @@ class LiveOverlay(
         labels = null
     }
 
-    // Never smaller than the original, so no half-hidden words show around it.
-    private fun label(text: String, bounds: Rect) = TextView(service).apply {
+    // Neighbouring labels take turns between two colours, so it's clear where one ends.
+    private fun label(text: String, index: Int) = TextView(service).apply {
         this.text = text
-        minWidth = bounds.width()
-        minHeight = bounds.height()
-        textSize = 15f
         setTextColor(if (dark) Color.WHITE else Color.rgb(32, 33, 36))
         textDirection = View.TEXT_DIRECTION_FIRST_STRONG
-        setPadding(dp(8), dp(4), dp(8), dp(4))
-        maxWidth = screenWidth * 85 / 100
+        gravity = Gravity.CENTER_VERTICAL
+        setPadding(dp(8), dp(2), dp(8), dp(2))
+        // A longer translation shrinks to fit its message instead of spilling onto the next one.
+        setAutoSizeTextTypeUniformWithConfiguration(MIN_TEXT_SP, TEXT_SP, 1, TypedValue.COMPLEX_UNIT_SP)
+        val colors = if (dark) DARK_COLORS else LIGHT_COLORS
         background = GradientDrawable().apply {
             cornerRadius = dp(8).toFloat()
-            setColor(if (dark) Color.rgb(74, 40, 56) else Color.rgb(255, 228, 238))
+            setColor(colors[index % colors.size].first)
+            setStroke(dp(1), colors[index % colors.size].second)
         }
     }
 
-    // Stays anchored to the bubble's nearer screen edge, so long text grows into the chat.
-    private fun position(bounds: Rect) = FrameLayout.LayoutParams(
-        FrameLayout.LayoutParams.WRAP_CONTENT,
-        FrameLayout.LayoutParams.WRAP_CONTENT,
-    ).apply {
+    // As wide as the text wants at full size, never narrower than the original, at most 85% of the screen.
+    private fun labelWidth(text: String, bounds: Rect): Int {
+        val paint = TextPaint().apply {
+            textSize = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP,
+                TEXT_SP.toFloat(),
+                service.resources.displayMetrics,
+            )
+        }
+        val wanted = paint.measureText(text).toInt() + dp(16) + 1
+        return wanted.coerceAtMost(screenWidth * 85 / 100).coerceAtLeast(bounds.width())
+    }
+
+    // Exactly as tall as the original, anchored to the bubble's nearer screen edge.
+    private fun position(bounds: Rect, width: Int) = FrameLayout.LayoutParams(width, bounds.height()).apply {
         topMargin = bounds.top
         if (bounds.centerX() > screenWidth / 2) {
             gravity = Gravity.TOP or Gravity.END
@@ -171,5 +187,18 @@ class LiveOverlay(
     private companion object {
         val ACCENT = Color.rgb(214, 51, 108)
         const val HOLD_MS = 600L
+        const val TEXT_SP = 15
+        const val MIN_TEXT_SP = 8
+        const val MIN_HEIGHT_DP = 14
+
+        // Fill and outline pairs: rose and blue.
+        val DARK_COLORS = listOf(
+            Color.rgb(74, 40, 56) to Color.rgb(140, 70, 100),
+            Color.rgb(30, 52, 78) to Color.rgb(70, 110, 160),
+        )
+        val LIGHT_COLORS = listOf(
+            Color.rgb(255, 228, 238) to Color.rgb(230, 150, 180),
+            Color.rgb(222, 236, 255) to Color.rgb(140, 175, 225),
+        )
     }
 }
